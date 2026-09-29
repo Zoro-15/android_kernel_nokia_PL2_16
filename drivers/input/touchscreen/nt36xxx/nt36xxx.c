@@ -2,7 +2,7 @@
  * Copyright (C) 2010 - 2017 Novatek, Inc.
  *
  * $Revision: 20544 $
- * $Date: 2017-12-20 11:08:15 +0800 (?±‰?, 20 ?Å‰???2017) $
+ * $Date: 2017-12-20 11:08:15 +0800 (????, 20 ??????2017) $
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -457,13 +457,13 @@ void fih_nvt_tpfwver_read(char *fw_ver)
 }
 
 //SW4-HL-Touch-ImplementDoubleTap-00+{_20170623
-int touch_double_tap_read_nvt(void)
+unsigned int touch_double_tap_read_nvt(void)
 {
 	pr_debug("%s, gdouble_tap_enable_nvt = %d", __func__, gdouble_tap_enable_nvt);
 
 	return gdouble_tap_enable_nvt;
 }
-int touch_double_tap_write_nvt(int enable)
+int touch_double_tap_write_nvt(unsigned int enable)
 {
 	pr_info( "%s: set gdouble_tap_enable_nvt = %d", __func__, enable);
 

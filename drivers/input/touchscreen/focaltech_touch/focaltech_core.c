@@ -1162,17 +1162,17 @@ static int read_register_result(void)
 }
 
 //ZZDC-snow-Touch-ImplementDoubleTap-00+_20170807 begin
-int touch_double_tap_read_focaltech(void)
+unsigned int touch_double_tap_read_focaltech(void)
 {
 	pr_debug("%s, gdouble_tap_enable = %d", __func__, gdouble_tap_enable);
 
-	return gdouble_tap_enable;
+	return (unsigned int)gdouble_tap_enable;
 }
-int touch_double_tap_write_focaltech(int enable)
+int touch_double_tap_write_focaltech(unsigned int enable)
 {
 	pr_info( "%s: set gdouble_tap_enable = %d", __func__, enable);
 
-	gdouble_tap_enable = enable;
+	gdouble_tap_enable = (int)enable;
 
 	return 0;
 }

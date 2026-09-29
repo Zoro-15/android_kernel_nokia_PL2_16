@@ -780,13 +780,13 @@ void gt1x_input_sync(void)
 }
 //add by zzdc@snow for release tp data end
 //ZZDC-snow-Touch-ImplementDoubleTap-00+_20170807 begin
-int touch_double_tap_read_hlt(void)
+unsigned int touch_double_tap_read_hlt(void)
 {
 	pr_debug("%s, gdouble_tap_enable = %d", __func__, gdouble_tap_enable);
 
-	return gdouble_tap_enable;
+	return (unsigned int)gdouble_tap_enable;
 }
-int touch_double_tap_write_hlt(int enable)
+int touch_double_tap_write_hlt(unsigned int enable)
 {
 	pr_info( "%s: set gdouble_tap_enable = %d", __func__, enable);
 	

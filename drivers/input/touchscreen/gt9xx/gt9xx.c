@@ -2074,13 +2074,13 @@ static void touch_selftest_write_gt9xx(void)
 }
 
 //SW4-HL-Touch-ImplementDoubleTap-00+{_20170623
-int touch_double_tap_read_gt9xx(void)
+unsigned int touch_double_tap_read_gt9xx(void)
 {
     pr_debug("%s, gdouble_tap_enable_gt9xx = %d", __func__, gdouble_tap_enable_gt9xx);
 
-    return gdouble_tap_enable_gt9xx;
+    return (unsigned int)gdouble_tap_enable_gt9xx;
 }
-int touch_double_tap_write_gt9xx(int enable)
+int touch_double_tap_write_gt9xx(unsigned int enable)
 {
     pr_info( "%s: set gdouble_tap_enable_gt9xx = %d", __func__, enable);
 
@@ -2096,7 +2096,7 @@ int touch_double_tap_write_gt9xx(int enable)
     }
     //SW4-HL-Touch-DoubleTapOptionAllowedModifyOnlyWhenLcmIsOn-00+{_20170927
 
-    gdouble_tap_enable_gt9xx = enable;
+    gdouble_tap_enable_gt9xx = (int)enable;
 
     pr_debug("[HL]%s: gdouble_tap_enable_gt9xx = enable = %d\n", __func__, gdouble_tap_enable_gt9xx);
 

@@ -1296,13 +1296,13 @@ static void fts_ts_late_resume(struct early_suspend *handler)
 }
 #endif
 
-int touch_double_tap_read_focaltech_8719(void)
+unsigned int touch_double_tap_read_focaltech_8719(void)
 {
 	pr_debug("%s, gdouble_tap_enable = %d", __func__, gdouble_tap_enable);
 
-	return gdouble_tap_enable;
+	return (unsigned int)gdouble_tap_enable;
 }
-int touch_double_tap_write_focaltech_8719(int enable)
+int touch_double_tap_write_focaltech_8719(unsigned int enable)
 {
 	pr_info( "%s: set gdouble_tap_enable = %d", __func__, enable);
 
@@ -1316,7 +1316,7 @@ int touch_double_tap_write_focaltech_8719(int enable)
 		pr_debug("[HL]%s: LCM is ON! Allow To Modify Double Tap Value!\n", __func__);
 	}
 
-	gdouble_tap_enable = enable;
+	gdouble_tap_enable = (int)enable;
 
 	return 0;
 }
