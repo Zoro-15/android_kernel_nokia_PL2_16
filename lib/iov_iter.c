@@ -829,3 +829,68 @@ int import_single_range(int rw, void __user *buf, size_t len,
 	iov_iter_init(i, rw, iov, 1, len);
 	return 0;
 }
+
+void iov_iter_revert(struct iov_iter *i, size_t bytes)
+{
+	if (unlikely(bytes > i->count))
+		bytes = i->count;
+	if (unlikely(!bytes))
+		return;
+	i->count += bytes;
+	if (!(i->type & (ITER_BVEC | ITER_KVEC))) {
+		size_t off = i->iov_offset;
+		if (bytes <= off) {
+			i->iov_offset -= bytes;
+			return;
+		}
+		bytes -= off;
+		while (1) {
+			const struct iovec *iov = --i->iov;
+			size_t len = iov->iov_len;
+			i->nr_segs++;
+			if (bytes <= len) {
+				i->iov_offset = len - bytes;
+				return;
+			}
+			bytes -= len;
+		}
+	}
+	if (i->type & ITER_BVEC) {
+		size_t off = i->iov_offset;
+		if (bytes <= off) {
+			i->iov_offset -= bytes;
+			return;
+		}
+		bytes -= off;
+		while (1) {
+			const struct bio_vec *bvec = --i->bvec;
+			size_t len = bvec->bv_len;
+			i->nr_segs++;
+			if (bytes <= len) {
+				i->iov_offset = len - bytes;
+				return;
+			}
+			bytes -= len;
+		}
+	}
+	if (i->type & ITER_KVEC) {
+		size_t off = i->iov_offset;
+		if (bytes <= off) {
+			i->iov_offset -= bytes;
+			return;
+		}
+		bytes -= off;
+		while (1) {
+			const struct kvec *kvec = --i->kvec;
+			size_t len = kvec->iov_len;
+			i->nr_segs++;
+			if (bytes <= len) {
+				i->iov_offset = len - bytes;
+				return;
+			}
+			bytes -= len;
+		}
+	}
+}
+EXPORT_SYMBOL(iov_iter_revert);
+
