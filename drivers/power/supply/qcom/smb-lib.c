@@ -3632,6 +3632,8 @@ static void smblib_micro_usb_plugin(struct smb_charger *chg, bool vbus_rising)
 		extcon_set_cable_state_(chg->extcon, EXTCON_USB, false);
 		smblib_uusb_removal(chg);
 	}
+}
+
 bool hlt_vbus_rising = false; //add by zzdc@snow for tp charger switch
 EXPORT_SYMBOL(hlt_vbus_rising);
 
