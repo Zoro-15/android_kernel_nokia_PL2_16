@@ -3632,7 +3632,8 @@ static void smblib_micro_usb_plugin(struct smb_charger *chg, bool vbus_rising)
 		extcon_set_cable_state_(chg->extcon, EXTCON_USB, false);
 		smblib_uusb_removal(chg);
 	}
-}
+bool hlt_vbus_rising = false; //add by zzdc@snow for tp charger switch
+EXPORT_SYMBOL(hlt_vbus_rising);
 
 void smblib_usb_plugin_hard_reset_locked(struct smb_charger *chg)
 {
@@ -3669,6 +3670,7 @@ void smblib_usb_plugin_hard_reset_locked(struct smb_charger *chg)
 	}
 
 	power_supply_changed(chg->usb_psy);
+	hlt_vbus_rising = vbus_rising;
 	smblib_dbg(chg, PR_INTERRUPT, "IRQ: usbin-plugin %s\n",
 					vbus_rising ? "attached" : "detached");
 }
@@ -3730,6 +3732,7 @@ void smblib_usb_plugin_locked(struct smb_charger *chg)
 		smblib_micro_usb_plugin(chg, vbus_rising);
 
 	power_supply_changed(chg->usb_psy);
+	hlt_vbus_rising = vbus_rising;
 	smblib_dbg(chg, PR_INTERRUPT, "IRQ: usbin-plugin %s\n",
 					vbus_rising ? "attached" : "detached");
 
