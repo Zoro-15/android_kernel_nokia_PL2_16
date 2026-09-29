@@ -1,0 +1,31 @@
+#
+# Goodix Touchscreen driver configuration
+#
+
+config TOUCHSCREEN_GX
+        bool "Goodix Touchscreen"
+		depends on I2C
+		default n
+		help
+		  Say Y here if you have Goodix touch panel.
+		  If unsure, say N.
+
+config TOUCHSCREEN_GX_DIRECTORY
+    string "Goodix ts directory name"
+    default "gt1x"
+    depends on TOUCHSCREEN_GX
+
+config TOUCHSCREEN_GT1X
+    bool "Goodix GT1x series"
+    depends on I2C
+    default y
+    help
+      Say Y here if you have a Goodix GT1x touchscreen controller.
+      If unsure, say N.
+
+config TOUCHSCREEN_GT1X_UPDATE
+    bool "Goodix GT1x auto update support"
+    depends on TOUCHSCREEN_GT1X || TOUCHSCREEN_GX
+    default y
+    help
+      Enable this for support firmware auto-update.
