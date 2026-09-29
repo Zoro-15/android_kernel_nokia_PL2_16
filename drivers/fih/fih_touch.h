@@ -47,4 +47,5 @@ struct fih_touch_cb
 };
 
 int siw_hal_lpwg_FIH(int code, int mode, int screen, int sensor, int qcover);
+extern int gdouble_tap_enable;
 #endif /* __FIH_TOUCH_H */

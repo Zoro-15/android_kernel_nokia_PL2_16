@@ -84,6 +84,8 @@ struct fih_touch_cb touch_cb = {
 	
 };
 int tp_probe_success = 0;	//SW4-HL-TouchPanel-AccordingToTPDriverProbeResultToDecideWhetherToCreateVirtualFileOrNot-00+_20151130
+int gdouble_tap_enable = 0;
+EXPORT_SYMBOL(gdouble_tap_enable);
 
 char fih_touch[32] = "unknown";
 void fih_info_set_touch(char *info)
