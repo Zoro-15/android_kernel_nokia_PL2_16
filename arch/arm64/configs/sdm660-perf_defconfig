@@ -706,8 +706,3 @@ CONFIG_CGROUP_BPF=y
 CONFIG_NETFILTER_XT_MATCH_BPF=y
 CONFIG_NET_CLS_BPF=y
 CONFIG_NET_ACT_BPF=y
-
-# Always-On Debug, Recovery UI (fdsan) and SELinux Permissive
-CONFIG_CMDLINE="debug.fdsan=warn androidboot.selinux=permissive"
-CONFIG_CMDLINE_EXTEND=y
-CONFIG_BUILD_ARM64_APPENDED_KERNEL_IMAGE_NAME="Image.gz-dtb"
