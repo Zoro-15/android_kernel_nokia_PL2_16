@@ -12,7 +12,7 @@
  */
 
 &soc {
-	led_flash0: qcom,camera-flash@0 {
+	qcom,camera-flash@0 {
 		cell-index = <0>;
 		compatible = "qcom,camera-flash";
 		qcom,flash-source = <&pm660l_flash0 &pm660l_flash1>;
@@ -21,7 +21,7 @@
 		status = "ok";
 	};
 
-	led_flash1: qcom,camera-flash@1 {
+	qcom,camera-flash@1 {
 		cell-index = <1>;
 		compatible = "qcom,camera-flash";
 		qcom,flash-source = <&pm660l_flash2>;
@@ -165,7 +165,7 @@
 };
 
 &cci {
-	actuator0: qcom,actuator@0 {
+	qcom,actuator@0 {
 		cell-index = <0>;
 		reg = <0x0>;
 		compatible = "qcom,actuator";
@@ -182,7 +182,7 @@
 */
 	};
 
-	eeprom0: qcom,eeprom@0 {
+	qcom,eeprom@0 {
 		cell-index = <0>;
 		reg = <0>;
 		compatible = "qcom,eeprom";
@@ -220,7 +220,7 @@
 		qcom,clock-rates = <24000000 0>;
 	};
 
-	eeprom1: qcom,eeprom@1 {
+	qcom,eeprom@1 {
 		cell-index = <1>;
 		reg = <0x01>;
 		compatible = "qcom,eeprom";

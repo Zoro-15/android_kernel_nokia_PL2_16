@@ -118,30 +118,30 @@
 };
 
 &pm660l_3 {
-	pmic_analog_codec: analog-codec@f000 {
+	analog-codec@f000 {
 		qcom,cdc-micbias-cfilt-mv = <2700000>;
 	};
 };
 
 &soc{
-    pcm2: qcom,msm-ultra-low-latency {
+    qcom,msm-ultra-low-latency {
         qcom,latency-level = "regular";
     };
-    pcm_noirq: qcom,msm-pcm-dsp-noirq {
+    qcom,msm-pcm-dsp-noirq {
         qcom,latency-level = "regular";
     };
 
-    wsa_spkr_en1: wsa_spkr_en1_pinctrl {
+    wsa_spkr_en1_pinctrl {
         status = "disabled";
     };
 
-    wsa_spkr_en2: wsa_spkr_en2_pinctrl {
+    wsa_spkr_en2_pinctrl {
         status = "disabled";
     };
 
     /* TFA9891 SmartAmp I2S */
     qcom,msm-dai-mi2s {
-        dai_mi2s2: qcom,msm-dai-q6-mi2s-tert {
+        qcom,msm-dai-q6-mi2s-tert {
             qcom,msm-dai-q6-mi2s-dev-id = <2>;
             qcom,msm-mi2s-rx-lines = <1>;
             qcom,msm-mi2s-tx-lines = <2>;
@@ -155,7 +155,7 @@
 		qcom,lpi-gpios;
     };
     /* TFA9891 SmartAmp I2C */
-    i2c_7: i2c@c1b7000 {
+    i2c@c1b7000 {
             pinctrl-names = "i2c_active", "i2c_sleep";
             pinctrl-0 = <&sdm660_gpio26_active &sdm660_gpio27_active>;
             pinctrl-1 = <&sdm660_gpio26_sleep &sdm660_gpio27_sleep>;
@@ -169,7 +169,7 @@
     };
     
     /* gpio */
-	tlmm: pinctrl@03000000 {
+	pinctrl@03000000 {
 		/* gpio 26 */ /* SPK_I2C_SDA */
 		sdm660_gpio26_active: sdm660_gpio26_active {
 			mux {
@@ -225,7 +225,7 @@
 		};
     };
         /* gpio */
-    lpi_tlmm: lpi_pinctrl@15070000 {
+    lpi_pinctrl@15070000 {
         /* gpio 4 */ /* SPK_I2S_CLK */
         sdm660_gpio4_active: sdm660_gpio4_active {
             mux {

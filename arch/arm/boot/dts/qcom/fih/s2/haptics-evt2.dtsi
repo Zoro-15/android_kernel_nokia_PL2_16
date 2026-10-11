@@ -1,6 +1,6 @@
 &spmi_bus {
 	qcom,pm660@1 {
-		 pm660_haptics: qcom,haptic@c000 {
+		 pm660_haptics_s2: qcom,haptic@c000 {
 			qcom,vmax-mv = <2500>;
 			qcom,wave-shape = "sine";
 			qcom,wave-play-rate-us = <4347>;

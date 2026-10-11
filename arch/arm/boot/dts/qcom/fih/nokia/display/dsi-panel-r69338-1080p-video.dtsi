@@ -136,7 +136,7 @@
 &soc {
 	/delete-node/dsi_panel_pwr_supply;
 
-	dsi_panel_pwr_supply: dsi_panel_pwr_supply {
+	dsi_panel_pwr_supply {
 		#address-cells = <1>;
 		#size-cells = <0>;
 
