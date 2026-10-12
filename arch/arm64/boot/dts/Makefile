@@ -1,5 +1,4 @@
 dts-dirs += qcom
-dts-dirs += fih
 
 subdir-y	:= $(dts-dirs)
 

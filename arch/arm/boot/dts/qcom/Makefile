@@ -218,7 +218,6 @@ dtb-$(CONFIG_ARCH_SDM660) += sdm660-sim.dtb \
 	sdm660-internal-codec-rcm.dtb \
 	sdm660-cdp.dtb \
 	sdm660-mtp.dtb \
-	sdm660-mtp-pl2-preEVT.dtb \
 	sdm660-qrd.dtb \
 	sdm660-rcm.dtb \
 	sdm660-rumi.dtb \
@@ -295,10 +294,6 @@ dtb-$(CONFIG_ARCH_SDM660) += sdm660-sim.dtb \
 dtb-$(CONFIG_ARCH_SDM630) += sdm630-rumi.dtb \
 	sdm630-pm660a-rumi.dtb \
 	sdm630-mtp.dtb \
-	sdm630-mtp-pl2-preEVT.dtb \
-	sdm630-mtp-pl2-EVT1.5.dtb \
-	sdm630-mtp-pl2-EVT1.5-CD.dtb \
-	sdm630-mtp-pl2-dvt.dtb \
 	sdm630-usbc-audio-mtp.dtb \
 	sdm630-usbc-audio-rcm.dtb \
 	sdm630-cdp.dtb \

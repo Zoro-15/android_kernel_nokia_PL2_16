@@ -769,3 +769,9 @@ CONFIG_CRYPTO_AES_ARM64_NEON_BLK=y
 CONFIG_CRYPTO_CRC32_ARM64=y
 CONFIG_XZ_DEC=y
 CONFIG_QMI_ENCDEC=y
+
+# Always-On Debug, Recovery UI (fdsan) and SELinux Permissive
+CONFIG_CMDLINE="debug.fdsan=warn androidboot.selinux=permissive"
+CONFIG_CMDLINE_EXTEND=y
+CONFIG_BUILD_ARM64_APPENDED_KERNEL_IMAGE_NAME="Image.gz-dtb"
+CONFIG_BUILD_ARM64_APPENDED_DTB_IMAGE_NAMES="qcom/sdm660-mtp qcom/sdm660-pm660a-mtp qcom/sdm630-mtp qcom/sdm630-pm660a-mtp qcom/sdm660-internal-codec-mtp qcom/sdm660-internal-codec-pm660a-mtp qcom/sdm630-internal-codec-mtp qcom/sdm630-internal-codec-pm660a-mtp"
