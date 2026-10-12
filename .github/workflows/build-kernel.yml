@@ -3,6 +3,10 @@ name: Build Nokia SDM660 (PL2) Kernel
 on:
   workflow_dispatch:
     inputs:
+      commit_ref:
+        description: 'Git Commit SHA, Branch, or Tag to build (leave empty for latest)'
+        required: false
+        default: ''
       defconfig:
         description: 'Kernel Defconfig'
         required: true
@@ -26,6 +30,30 @@ jobs:
     steps:
       - name: Checkout Kernel Source
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Switch to Target Commit (if specified)
+        run: |
+          # Keep extra/ directory safe before switching commits if needed
+          if [ -d "extra" ]; then
+            cp -r extra /tmp/extra_backup
+          fi
+
+          TARGET_REF="${{ github.event.inputs.commit_ref }}"
+          if [ -n "$TARGET_REF" ]; then
+            echo "Checking out requested commit/ref: $TARGET_REF"
+            git checkout "$TARGET_REF"
+          fi
+
+          # Restore extra/ directory if it was wiped by checkout
+          if [ ! -d "extra" ] && [ -d "/tmp/extra_backup" ]; then
+            cp -r /tmp/extra_backup extra
+          fi
+
+          COMMIT_HASH=$(git rev-parse --short HEAD)
+          echo "COMMIT_HASH=$COMMIT_HASH" >> $GITHUB_ENV
+          echo "Building commit: $COMMIT_HASH"
 
       - name: Install Build Dependencies
         run: |
@@ -61,22 +89,79 @@ jobs:
           make O=out ARCH=arm64 $DEFCONFIG
           make -j$(nproc --all) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- KCFLAGS="-gdwarf-4"
 
-      - name: Package Kernel Artifacts
+      - name: Repack Flashable Boot Image (Magiskboot)
         run: |
           mkdir -p release
-          # Only package Image.gz-dtb (kernel with appended DTB for SDM660/PL2)
-          # Raw Image.gz lacks DTB and is useless on Nokia 6.1 bootloaders
-          if [ -f out/arch/arm64/boot/Image.gz-dtb ]; then
-            cp out/arch/arm64/boot/Image.gz-dtb release/
+          KERNEL_IMAGE="out/arch/arm64/boot/Image.gz-dtb"
+          BASE_BOOT="extra/boot_universal.img"
+
+          if [ ! -f "$KERNEL_IMAGE" ]; then
+            echo "::error::Kernel image $KERNEL_IMAGE not found!"
+            exit 1
           fi
+
+          cp "$KERNEL_IMAGE" "release/Image.gz-dtb"
           if [ -f out/arch/arm64/boot/dtbo.img ]; then
             cp out/arch/arm64/boot/dtbo.img release/
           fi
-          echo ">>> Release files size:"
+
+          if [ -f "$BASE_BOOT" ]; then
+            echo ">>> Setting up Magiskboot for automated boot.img repacking..."
+            mkdir -p /tmp/repack && cd /tmp/repack
+            curl -sL https://github.com/topjohnwu/Magisk/releases/download/v27.0/Magisk-v27.0.apk -o magisk.apk
+            unzip -oq magisk.apk "lib/x86_64/libmagiskboot.so" -d .
+            mv lib/x86_64/libmagiskboot.so magiskboot
+            chmod +x magiskboot
+            rm -rf lib magisk.apk
+
+            echo ">>> Unpacking $BASE_BOOT..."
+            ./magiskboot unpack "$GITHUB_WORKSPACE/$BASE_BOOT"
+
+            echo ">>> Replacing kernel with freshly compiled Image.gz-dtb..."
+            cp "$GITHUB_WORKSPACE/$KERNEL_IMAGE" kernel
+
+            echo ">>> Patching ramdisk for Always-On ADB..."
+            if [ -f ramdisk.cpio ]; then
+              ./magiskboot cpio ramdisk.cpio "extract default.prop default.prop" 2>/dev/null || true
+              ./magiskboot cpio ramdisk.cpio "extract prop.default prop.default" 2>/dev/null || true
+
+              cat << 'EOF' >> adb_props.txt
+ro.debuggable=1
+ro.adb.secure=0
+persist.sys.usb.config=adb
+sys.usb.config=adb
+debug.fdsan=warn
+EOF
+
+              if [ -f prop.default ]; then
+                cat adb_props.txt >> prop.default
+                ./magiskboot cpio ramdisk.cpio "add 0644 prop.default prop.default"
+              fi
+
+              if [ -f default.prop ]; then
+                cat adb_props.txt >> default.prop
+                ./magiskboot cpio ramdisk.cpio "add 0644 default.prop default.prop"
+              fi
+            fi
+
+            echo ">>> Repacking boot image..."
+            ./magiskboot repack "$GITHUB_WORKSPACE/$BASE_BOOT" boot-PL2-${{ env.COMMIT_HASH }}.img
+            if [ -f new-boot.img ]; then
+              mv new-boot.img boot-PL2-${{ env.COMMIT_HASH }}.img
+            fi
+
+            cp boot-PL2-${{ env.COMMIT_HASH }}.img "$GITHUB_WORKSPACE/release/"
+            cd "$GITHUB_WORKSPACE"
+            echo "✅ Repacked boot-PL2-${{ env.COMMIT_HASH }}.img created successfully!"
+          else
+            echo "::warning::Base boot image $BASE_BOOT not found, skipping repack."
+          fi
+
+          echo ">>> Release files:"
           ls -lh release/
 
-      - name: Upload Kernel Artifact
+      - name: Upload Kernel & Flashable Boot Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Nokia-PL2-Kernel-Build
+          name: Nokia-PL2-Kernel-boot-${{ env.COMMIT_HASH }}
           path: release/*
