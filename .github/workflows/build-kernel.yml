@@ -89,7 +89,7 @@ jobs:
           make O=out ARCH=arm64 $DEFCONFIG
           make -j$(nproc --all) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android- CROSS_COMPILE_ARM32=arm-linux-androideabi- KCFLAGS="-gdwarf-4"
 
-      - name: Repack Flashable Boot Image (Pure Kernel Swap)
+      - name: Repack Flashable Boot Image (Magiskboot with fdsan)
         run: |
           mkdir -p release
           KERNEL_IMAGE="out/arch/arm64/boot/Image.gz-dtb"
@@ -106,7 +106,7 @@ jobs:
           fi
 
           if [ -f "$BASE_BOOT" ]; then
-            echo ">>> Setting up Magiskboot for pure kernel swap..."
+            echo ">>> Setting up Magiskboot for repacking..."
             mkdir -p /tmp/repack && cd /tmp/repack
             curl -sL https://github.com/topjohnwu/Magisk/releases/download/v27.0/Magisk-v27.0.apk -o magisk.apk
             unzip -oq magisk.apk "lib/x86_64/libmagiskboot.so" -d .
@@ -117,11 +117,34 @@ jobs:
             echo ">>> Unpacking $BASE_BOOT..."
             ./magiskboot unpack "$GITHUB_WORKSPACE/$BASE_BOOT"
 
-            echo ">>> Replacing kernel with freshly compiled Image.gz-dtb (NO ramdisk patching)..."
+            echo ">>> Replacing kernel with freshly compiled Image.gz-dtb..."
             cp "$GITHUB_WORKSPACE/$KERNEL_IMAGE" kernel
 
+            echo ">>> Patching ramdisk with debug.fdsan=warn and Always-On ADB..."
+            if [ -f ramdisk.cpio ]; then
+              ./magiskboot cpio ramdisk.cpio "extract default.prop default.prop" 2>/dev/null || true
+              ./magiskboot cpio ramdisk.cpio "extract prop.default prop.default" 2>/dev/null || true
+
+              printf '%s\n' \
+                "debug.fdsan=warn" \
+                "ro.debuggable=1" \
+                "ro.adb.secure=0" \
+                "persist.sys.usb.config=adb" \
+                "sys.usb.config=adb" >> adb_props.txt
+
+              if [ -f prop.default ]; then
+                cat adb_props.txt >> prop.default
+                ./magiskboot cpio ramdisk.cpio "add 0644 prop.default prop.default"
+              fi
+
+              if [ -f default.prop ]; then
+                cat adb_props.txt >> default.prop
+                ./magiskboot cpio ramdisk.cpio "add 0644 default.prop default.prop"
+              fi
+            fi
+
             echo ">>> Repacking boot image..."
-            BOOT_OUT="boot-PL2-pure-${COMMIT_HASH}.img"
+            BOOT_OUT="boot-PL2-${COMMIT_HASH}.img"
             ./magiskboot repack "$GITHUB_WORKSPACE/$BASE_BOOT" "$BOOT_OUT"
             if [ -f new-boot.img ]; then
               mv new-boot.img "$BOOT_OUT"
@@ -129,7 +152,7 @@ jobs:
 
             cp "$BOOT_OUT" "$GITHUB_WORKSPACE/release/"
             cd "$GITHUB_WORKSPACE"
-            echo "✅ Repacked $BOOT_OUT created successfully (pure kernel swap)!"
+            echo "✅ Repacked $BOOT_OUT created successfully!"
           else
             echo "::warning::Base boot image $BASE_BOOT not found, skipping repack."
           fi
