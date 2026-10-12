@@ -120,17 +120,12 @@ jobs:
             echo ">>> Replacing kernel with freshly compiled Image.gz-dtb..."
             cp "$GITHUB_WORKSPACE/$KERNEL_IMAGE" kernel
 
-            echo ">>> Patching ramdisk with debug.fdsan=warn and Always-On ADB..."
+            echo ">>> Patching ramdisk with debug.fdsan=warn ONLY..."
             if [ -f ramdisk.cpio ]; then
               ./magiskboot cpio ramdisk.cpio "extract default.prop default.prop" 2>/dev/null || true
               ./magiskboot cpio ramdisk.cpio "extract prop.default prop.default" 2>/dev/null || true
 
-              printf '%s\n' \
-                "debug.fdsan=warn" \
-                "ro.debuggable=1" \
-                "ro.adb.secure=0" \
-                "persist.sys.usb.config=adb" \
-                "sys.usb.config=adb" >> adb_props.txt
+              printf '%s\n' "debug.fdsan=warn" >> adb_props.txt
 
               if [ -f prop.default ]; then
                 cat adb_props.txt >> prop.default
@@ -144,7 +139,7 @@ jobs:
             fi
 
             echo ">>> Repacking boot image..."
-            BOOT_OUT="boot-PL2-${COMMIT_HASH}.img"
+            BOOT_OUT="boot-PL2-fdsan-only-${COMMIT_HASH}.img"
             ./magiskboot repack "$GITHUB_WORKSPACE/$BASE_BOOT" "$BOOT_OUT"
             if [ -f new-boot.img ]; then
               mv new-boot.img "$BOOT_OUT"
