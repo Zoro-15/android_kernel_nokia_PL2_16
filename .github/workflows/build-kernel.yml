@@ -125,13 +125,12 @@ jobs:
               ./magiskboot cpio ramdisk.cpio "extract default.prop default.prop" 2>/dev/null || true
               ./magiskboot cpio ramdisk.cpio "extract prop.default prop.default" 2>/dev/null || true
 
-              cat << 'EOF' >> adb_props.txt
-ro.debuggable=1
-ro.adb.secure=0
-persist.sys.usb.config=adb
-sys.usb.config=adb
-debug.fdsan=warn
-EOF
+              printf '%s\n' \
+                "ro.debuggable=1" \
+                "ro.adb.secure=0" \
+                "persist.sys.usb.config=adb" \
+                "sys.usb.config=adb" \
+                "debug.fdsan=warn" >> adb_props.txt
 
               if [ -f prop.default ]; then
                 cat adb_props.txt >> prop.default
@@ -145,14 +144,15 @@ EOF
             fi
 
             echo ">>> Repacking boot image..."
-            ./magiskboot repack "$GITHUB_WORKSPACE/$BASE_BOOT" boot-PL2-${{ env.COMMIT_HASH }}.img
+            BOOT_OUT="boot-PL2-${COMMIT_HASH}.img"
+            ./magiskboot repack "$GITHUB_WORKSPACE/$BASE_BOOT" "$BOOT_OUT"
             if [ -f new-boot.img ]; then
-              mv new-boot.img boot-PL2-${{ env.COMMIT_HASH }}.img
+              mv new-boot.img "$BOOT_OUT"
             fi
 
-            cp boot-PL2-${{ env.COMMIT_HASH }}.img "$GITHUB_WORKSPACE/release/"
+            cp "$BOOT_OUT" "$GITHUB_WORKSPACE/release/"
             cd "$GITHUB_WORKSPACE"
-            echo "✅ Repacked boot-PL2-${{ env.COMMIT_HASH }}.img created successfully!"
+            echo "✅ Repacked $BOOT_OUT created successfully!"
           else
             echo "::warning::Base boot image $BASE_BOOT not found, skipping repack."
           fi
@@ -163,5 +163,5 @@ EOF
       - name: Upload Kernel & Flashable Boot Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Nokia-PL2-Kernel-boot-${{ env.COMMIT_HASH }}
+          name: Nokia-PL2-Kernel-boot-${{ env.COMMIT_HASH || 'build' }}
           path: release/*
